@@ -38,6 +38,13 @@
       navLinks.appendChild(waClone);
     }
 
+    const closeNavMenu = () => {
+      navLinks.classList.remove('open');
+      hamburger.classList.remove('active');
+      hamburger.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    };
+
     hamburger.addEventListener('click', () => {
       const isOpen = navLinks.classList.toggle('open');
       hamburger.classList.toggle('active', isOpen);
@@ -47,21 +54,27 @@
 
     // Close on nav link click
     navLinks.querySelectorAll('.nav-link').forEach(link => {
-      link.addEventListener('click', () => {
-        navLinks.classList.remove('open');
-        hamburger.classList.remove('active');
-        hamburger.setAttribute('aria-expanded', 'false');
-        document.body.style.overflow = '';
-      });
+      link.addEventListener('click', closeNavMenu);
     });
 
     // Close on outside click
     document.addEventListener('click', (e) => {
       if (!navbar.contains(e.target) && navLinks.classList.contains('open')) {
-        navLinks.classList.remove('open');
-        hamburger.classList.remove('active');
-        hamburger.setAttribute('aria-expanded', 'false');
-        document.body.style.overflow = '';
+        closeNavMenu();
+      }
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && navLinks.classList.contains('open')) {
+        closeNavMenu();
+      }
+    });
+
+    // Close mobile menu when resizing to desktop
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 900 && navLinks.classList.contains('open')) {
+        closeNavMenu();
       }
     });
   }
@@ -142,24 +155,43 @@
   }
 
   // ── Service cards: tilt effect on desktop ─────────────────
-  if (window.innerWidth > 900) {
-    document.querySelectorAll('.service-card').forEach(card => {
-      card.addEventListener('mousemove', (e) => {
+  let tiltCardsInitialized = false;
+  const setupTiltCards = () => {
+    if (tiltCardsInitialized) return;
+
+    const cards = document.querySelectorAll('.service-card');
+    cards.forEach(card => {
+      const onMouseMove = (e) => {
         const rect = card.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
-        const cx = rect.width  / 2;
+        const cx = rect.width / 2;
         const cy = rect.height / 2;
         const dx = (x - cx) / cx;
         const dy = (y - cy) / cy;
         card.style.transform = `translateY(-6px) rotateX(${-dy * 4}deg) rotateY(${dx * 4}deg)`;
-      });
+      };
 
-      card.addEventListener('mouseleave', () => {
+      const onMouseLeave = () => {
         card.style.transform = '';
-      });
+      };
+
+      card.addEventListener('mousemove', onMouseMove);
+      card.addEventListener('mouseleave', onMouseLeave);
     });
+
+    tiltCardsInitialized = true;
+  };
+
+  if (window.innerWidth > 900) {
+    setupTiltCards();
   }
+
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 900) {
+      setupTiltCards();
+    }
+  });
 
   // ── Counter animation for hero stats ─────────────────────
   function animateCounter(el, target, suffix, duration = 1400) {
