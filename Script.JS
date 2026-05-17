@@ -23,7 +23,6 @@
   }
 
   window.addEventListener('scroll', onScroll, { passive: true });
-  onScroll(); // run once on load
 
   // ── Mobile menu ───────────────────────────────────────────
   const hamburger = document.getElementById('hamburger');
@@ -82,6 +81,8 @@
   // ── Active nav link on scroll ─────────────────────────────
   const sections = document.querySelectorAll('section[id]');
   const navAnchors = document.querySelectorAll('.nav-link');
+
+  onScroll(); // run once on load
 
   function updateActiveLink() {
     let current = '';
